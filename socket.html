@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
+  </head>
+  <body>
+    <script>
+        var socket = io.connect();
+
+        var demo = function(data) {
+
+          var chart = d3.select("svg"); // This is the main object that is going to get all the special treatment on the INSIDE
+
+          var circle = chart.selectAll("circle").data(data); // If there are no objects, this will create them, and those objects will be called "tris"
+          // This will actually begin to append the data from the data-set to the object above. 
+          // To actually apply any of the functionality, you have to now call the object independantly.
+
+          circle.enter().append("circle") // Let's begin the transformations, appending this to the now existant "tris" object
+            // The d, is the actual value of the array. The i, is the index within the array.
+            .attr("r", function(d) { return Math.sqrt(d); })
+            .attr("cx", function(d,i) { return 200*(i+1);})
+            .attr("cy", function(d,i) { return 200*(i+1);});
+
+          circle.transition()
+            .duration(850)
+            .attr("r", function(d) { return Math.sqrt(d); })
+            .attr("cx", function(d,i){return 50*(i+1);})
+            .attr("cy", function(d,i){return 60*(i+1);})
+            .attr("r", function(d) { return Math.sqrt(d*0.2); });
+
+          circle.exit()
+              .transition()
+              .duration(750)
+              .attr("r", 0)
+              .remove();
+        };
+
+        socket.on('date', function(data){
+            $('#date').text(data.date);
+            demo([data.date*20, data.date*50, data.date*100, data.date*200]);
+        });
+    </script>
+    The Current Time in Seconds: <span id="date"></span>
+    <svg id="grid"></svg>
+  </body>
+</html>
